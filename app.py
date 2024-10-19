@@ -51,10 +51,34 @@ if df1 is not None:
     else:
         df = df1
     
-    # Comment out the date filter for now
-    # mask = (df['date'].dt.date >= date_range[0]) & (df['date'].dt.date <= date_range[1])
-    # df = df.loc[mask]
+    # Get the min and max dates from the dataframe
+    min_date = df['date'].min().date()
+    max_date = df['date'].max().date()
     
+    # Update the date range selector with the dataframe's date range
+    st.sidebar.subheader("Vyberte rozsah dat")
+    date_range = st.sidebar.date_input(
+        "Rozsah dat",
+        value=[min_date, max_date],
+        min_value=min_date,
+        max_value=max_date
+    )
+    
+    # Ensure the selected date range is within the dataframe's date range
+    start_date = max(date_range[0], min_date)
+    end_date = min(date_range[1], max_date)
+    
+    # Filter data based on selected date range
+    mask = (df['date'].dt.date >= start_date) & (df['date'].dt.date <= end_date)
+    df_filtered = df.loc[mask]
+    
+    if df_filtered.empty:
+        st.warning("Žádná data nejsou k dispozici pro vybraný rozsah dat.")
+        st.stop()
+    
+    # Use the filtered dataframe for further processing
+    df = df_filtered
+
     # More debug information
     st.write("Data shape after processing:", df.shape)
     st.write("Columns after processing:", df.columns)
