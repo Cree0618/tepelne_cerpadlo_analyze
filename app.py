@@ -118,7 +118,6 @@ if df1 is not None:
 
             # Create graphs
             st.write("### Grafy")
-
             # Two columns for graphs
             col1, col2 = st.columns(2)
 
@@ -135,7 +134,7 @@ if df1 is not None:
                 fig_cop = go.Figure()
                 fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_total'], name='COP celkem', mode='lines'))
                 fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_heating'], name='COP topení', mode='lines'))
-                fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_water'], name='COP voda', mode='lines'))
+               
                 fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP')
                 st.plotly_chart(fig_cop, use_container_width=True)
 
