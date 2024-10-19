@@ -101,7 +101,7 @@ if df1 is not None:
     fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP', barmode='group')
     st.plotly_chart(fig_cop)
 
-     Line chart for temperature data
+     #Line chart for temperature data
     fig_temp = go.Figure()
     fig_temp.add_trace(go.Scatter(x=df['date'], y=df['outside_temp_degC'], name='Venkovní teplota'))
     fig_temp.add_trace(go.Scatter(x=df['date'], y=df['inside_temp_degC'], name='Vnitřní teplota'))
