@@ -131,7 +131,7 @@ if df1 is not None:
             title='Vnitřní teplota (°C)',
             overlaying='y',
             side='right',
-            range=[df['inside_temp_degC'].min() - 1, df['inside_temp_degC'].max() + 1]
+            range=[df['inside_temp_degC'].min() - 0.5, df['inside_temp_degC'].max() + 1]
             
         ),
         legend=dict(x=1.1, y=1)
