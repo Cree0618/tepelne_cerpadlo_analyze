@@ -81,9 +81,9 @@ if df1 is not None:
 
     # Bar chart for COP values
     fig_cop = go.Figure(data=[
-        go.Bar(name='COP celkem', x=df['date'], y=df['cop_total']),
-        go.Bar(name='COP topení', x=df['date'], y=df['cop_heating']),
-        go.Bar(name='COP voda', x=df['date'], y=df['cop_water'])
+        go.Scatter(name='COP celkem', x=df['date'], y=df['cop_total'], mode='lines'),
+
+       
     ])
     fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP', barmode='group')
     st.plotly_chart(fig_cop)
