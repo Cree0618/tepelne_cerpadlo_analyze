@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from io import StringIO
+import numpy as np
 
 # Title of the Streamlit app
 st.title("Zpracování CSV dat z tepelného čerpadla")
@@ -59,7 +60,15 @@ if df1 is not None:
 
     # Calculate sums and averages
     sums = df[sum_columns].sum().round(2)
-    avgs = df[avg_columns].mean().round(2)
+    
+    # Calculate averages, excluding zero values for COP columns
+    avgs = pd.Series(index=avg_columns)
+    for col in avg_columns:
+        if col.startswith('cop_'):
+            avgs[col] = df[df[col] > 0][col].mean()
+        else:
+            avgs[col] = df[col].mean()
+    avgs = avgs.round(2)
 
     # Create a new row with the totals and averages
     new_row = pd.concat([sums, avgs])
