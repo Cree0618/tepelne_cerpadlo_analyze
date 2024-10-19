@@ -1,16 +1,25 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 from io import StringIO
 import numpy as np
+from datetime import datetime, timedelta
+
+# Set page config
+st.set_page_config(page_title="Analýza dat tepelného čerpadla", layout="wide")
 
 # Title of the Streamlit app
 st.title("Zpracování CSV dat z tepelného čerpadla")
 
-# File uploader widgets
-uploaded_file1 = st.file_uploader("Nahraj první CSV soubor", type=["csv"], key="file1")
-uploaded_file2 = st.file_uploader("Nahraj druhý CSV soubor (volitelné)", type=["csv"], key="file2")
+# Sidebar for file upload and date range selection
+with st.sidebar:
+    st.header("Nastavení")
+    uploaded_file1 = st.file_uploader("Nahraj první CSV soubor", type=["csv"], key="file1")
+    uploaded_file2 = st.file_uploader("Nahraj druhý CSV soubor (volitelné)", type=["csv"], key="file2")
+    
+    # Date range selector
+    st.subheader("Vyberte rozsah dat")
+    date_range = st.date_input("Rozsah dat", value=[datetime.now() - timedelta(days=30), datetime.now()])
 
 def process_csv(file):
     if file is not None:
@@ -28,12 +37,15 @@ df2 = process_csv(uploaded_file2)
 
 if df1 is not None:
     if df2 is not None:
-        # Combine dataframes
         df = pd.concat([df1, df2], ignore_index=True)
         df = df.drop_duplicates(subset=['date'], keep='first')
         df = df.sort_values('date')
     else:
         df = df1
+    
+    # Filter data based on selected date range
+    mask = (df['date'].dt.date >= date_range[0]) & (df['date'].dt.date <= date_range[1])
+    df = df.loc[mask]
     
     # Round all numeric columns to 2 decimal places
     numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
@@ -85,23 +97,27 @@ if df1 is not None:
     # Create graphs
     st.write("### Grafy")
 
-    # Line chart for energy consumption and generation
-    fig_energy = go.Figure()
-    fig_energy.add_trace(go.Scatter(x=df['date'], y=df['consumed_total_kwh'], name='Spotřebovaná energie'))
-    fig_energy.add_trace(go.Scatter(x=df['date'], y=df['generated_total_kwh'], name='Vyrobená energie'))
-    fig_energy.update_layout(title='Spotřeba a výroba energie v čase', xaxis_title='Datum', yaxis_title='Energie (kWh)')
-    st.plotly_chart(fig_energy)
+    # Two columns for graphs
+    col1, col2 = st.columns(2)
 
-    # Bar chart for COP values
-    fig_cop = go.Figure(data=[
-        go.Scatter(name='COP celkem', x=df['date'], y=df['cop_total'], mode='lines'),
+    with col1:
+        # Line chart for energy consumption and generation
+        fig_energy = go.Figure()
+        fig_energy.add_trace(go.Scatter(x=df['date'], y=df['consumed_total_kwh'], name='Spotřebovaná energie'))
+        fig_energy.add_trace(go.Scatter(x=df['date'], y=df['generated_total_kwh'], name='Vyrobená energie'))
+        fig_energy.update_layout(title='Spotřeba a výroba energie v čase', xaxis_title='Datum', yaxis_title='Energie (kWh)')
+        st.plotly_chart(fig_energy, use_container_width=True)
 
-       
-    ])
-    fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP', barmode='group')
-    st.plotly_chart(fig_cop)
+    with col2:
+        # Line chart for COP values
+        fig_cop = go.Figure()
+        fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_total'], name='COP celkem', mode='lines'))
+        fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_heating'], name='COP topení', mode='lines'))
+        fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_water'], name='COP voda', mode='lines'))
+        fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP')
+        st.plotly_chart(fig_cop, use_container_width=True)
 
-     #Line chart for temperature data
+    # Line chart for temperature data
     fig_temp = go.Figure()
 
     # Add outside temperature trace
@@ -132,11 +148,22 @@ if df1 is not None:
             overlaying='y',
             side='right',
             range=[df['inside_temp_degC'].min() - 4, df['inside_temp_degC'].max() + 1]
-            
         ),
         legend=dict(x=1.1, y=1)
     )
-    st.plotly_chart(fig_temp)
+    st.plotly_chart(fig_temp, use_container_width=True)
+
+    # Key Performance Indicators (KPIs)
+    st.write("### Klíčové ukazatele výkonu (KPI)")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Průměrný COP", f"{avgs['cop_total']:.2f}")
+    col2.metric("Celková spotřeba energie", f"{sums['consumed_total_kwh']:.2f} kWh")
+    col3.metric("Celková vyrobená energie", f"{sums['generated_total_kwh']:.2f} kWh")
+    col4.metric("Počet startů kompresoru", f"{sums['compressor_starts']:.0f}")
+
+    # Energy efficiency calculation
+    energy_efficiency = (sums['generated_total_kwh'] / sums['consumed_total_kwh']) * 100 if sums['consumed_total_kwh'] > 0 else 0
+    st.write(f"### Energetická účinnost: {energy_efficiency:.2f}%")
 
     # Convert the updated dataframe to CSV
     csv_buffer = StringIO()
