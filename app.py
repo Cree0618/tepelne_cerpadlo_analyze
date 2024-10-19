@@ -34,6 +34,10 @@ if df1 is not None:
     else:
         df = df1
     
+    # Round all numeric columns to 2 decimal places
+    numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
+    df[numeric_columns] = df[numeric_columns].round(2)
+    
     # Display the original dataframe
     st.write("### Původní CSV data")
     st.dataframe(df)
@@ -54,8 +58,8 @@ if df1 is not None:
         st.stop()
 
     # Calculate sums and averages
-    sums = df[sum_columns].sum()
-    avgs = df[avg_columns].mean()
+    sums = df[sum_columns].sum().round(2)
+    avgs = df[avg_columns].mean().round(2)
 
     # Create a new row with the totals and averages
     new_row = pd.concat([sums, avgs])
