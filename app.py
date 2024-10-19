@@ -101,10 +101,15 @@ if df1 is not None:
     fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP', barmode='group')
     st.plotly_chart(fig_cop)
 
-    # Scatter plot for temperature data
-    fig_temp = px.scatter(df, x='outside_temp_degC', y='inside_temp_degC', color='date',
-                          title='Vnitřní vs Venkovní teplota')
-    fig_temp.update_layout(xaxis_title='Venkovní teplota (°C)', yaxis_title='Vnitřní teplota (°C)')
+     Line chart for temperature data
+    fig_temp = go.Figure()
+    fig_temp.add_trace(go.Scatter(x=df['date'], y=df['outside_temp_degC'], name='Venkovní teplota'))
+    fig_temp.add_trace(go.Scatter(x=df['date'], y=df['inside_temp_degC'], name='Vnitřní teplota'))
+    fig_temp.update_layout(
+        title='Vnitřní a Venkovní teplota v čase',
+        xaxis_title='Datum',
+        yaxis_title='Teplota (°C)'
+    )
     st.plotly_chart(fig_temp)
 
     # Convert the updated dataframe to CSV
