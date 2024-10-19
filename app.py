@@ -44,8 +44,8 @@ if df1 is not None:
         df = df1
     
     # Filter data based on selected date range
-    mask = (df['date'].dt.date >= date_range[0]) & (df['date'].dt.date <= date_range[1])
-    df = df.loc[mask]
+    # mask = (df['date'].dt.date >= date_range[0]) & (df['date'].dt.date <= date_range[1])
+    # df = df.loc[mask]
     
     # Round all numeric columns to 2 decimal places
     numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
