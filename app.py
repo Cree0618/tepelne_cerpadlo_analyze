@@ -69,12 +69,6 @@ if df1 is not None:
             # Use the filtered dataframe for further processing
             df = df_filtered
             
-            # More debug information
-            st.write("Data shape after processing:", df.shape)
-            st.write("Columns after processing:", df.columns)
-            st.write("First few rows after processing:")
-            st.write(df.head())
-            
             # Round all numeric columns to 2 decimal places
             numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
             df[numeric_columns] = df[numeric_columns].round(2)
@@ -93,15 +87,10 @@ if df1 is not None:
             avg_columns = ['cop_total', 'cop_heating', 'cop_water', 'outside_temp_degC', 'inside_temp_degC']
 
             # Ensure all required columns are present
-            expected_columns = set(sum_columns + avg_columns)
-            actual_columns = set(df.columns)
-            missing_columns = expected_columns - actual_columns
-            extra_columns = actual_columns - expected_columns
-
+            missing_columns = set(sum_columns + avg_columns) - set(df.columns)
             if missing_columns:
                 st.warning(f"Chybějící sloupce v CSV: {', '.join(missing_columns)}")
-            if extra_columns:
-                st.info(f"Dodatečné sloupce v CSV: {', '.join(extra_columns)}")
+                st.stop()
 
             # Calculate sums and averages
             sums = df[sum_columns].sum().round(2)
@@ -146,7 +135,7 @@ if df1 is not None:
                 fig_cop = go.Figure()
                 fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_total'], name='COP celkem', mode='lines'))
                 fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_heating'], name='COP topení', mode='lines'))
-                
+                fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_water'], name='COP voda', mode='lines'))
                 fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP')
                 st.plotly_chart(fig_cop, use_container_width=True)
 
@@ -196,7 +185,7 @@ if df1 is not None:
 
             # Energy efficiency calculation
             energy_efficiency = (sums['generated_total_kwh'] / sums['consumed_total_kwh']) * 100 if sums['consumed_total_kwh'] > 0 else 0
-            st.write(f"### Energetická účinnost: {energy_efficiency:.2f}% = {sums['generated_total_kwh']:.2f} / {sums['consumed_total_kwh']:.2f}")
+            st.write(f"### Energetická účinnost: {energy_efficiency:.2f}%")
 
             # Convert the updated dataframe to CSV
             csv_buffer = StringIO()
@@ -212,10 +201,5 @@ if df1 is not None:
             )
     else:
         st.warning("Prosím vyberte platný rozsah dat.")
-
 else:
     st.write("Prosím nahrajte alespoň jeden CSV soubor.")
-
-if df.empty:
-    st.warning("Dataframe je prázdný po zpracování.")
-    st.stop()
