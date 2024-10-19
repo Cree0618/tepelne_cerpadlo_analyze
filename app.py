@@ -26,6 +26,14 @@ def process_csv(file):
         try:
             df = pd.read_csv(file)
             df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            
+            # Debug information
+            st.write("Data shape:", df.shape)
+            st.write("Columns:", df.columns)
+            st.write("First few rows:")
+            st.write(df.head())
+            st.write("Date range:", df['date'].min(), "to", df['date'].max())
+            
             return df
         except Exception as e:
             st.error(f"Chyba při načítání souboru: {str(e)}")
@@ -43,9 +51,15 @@ if df1 is not None:
     else:
         df = df1
     
-    # Filter data based on selected date range
+    # Comment out the date filter for now
     # mask = (df['date'].dt.date >= date_range[0]) & (df['date'].dt.date <= date_range[1])
     # df = df.loc[mask]
+    
+    # More debug information
+    st.write("Data shape after processing:", df.shape)
+    st.write("Columns after processing:", df.columns)
+    st.write("First few rows after processing:")
+    st.write(df.head())
     
     # Round all numeric columns to 2 decimal places
     numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
@@ -65,10 +79,15 @@ if df1 is not None:
     avg_columns = ['cop_total', 'cop_heating', 'cop_water', 'outside_temp_degC', 'inside_temp_degC']
 
     # Ensure all required columns are present
-    missing_columns = set(sum_columns + avg_columns) - set(df.columns)
+    expected_columns = set(sum_columns + avg_columns)
+    actual_columns = set(df.columns)
+    missing_columns = expected_columns - actual_columns
+    extra_columns = actual_columns - expected_columns
+
     if missing_columns:
         st.warning(f"Chybějící sloupce v CSV: {', '.join(missing_columns)}")
-        st.stop()
+    if extra_columns:
+        st.info(f"Dodatečné sloupce v CSV: {', '.join(extra_columns)}")
 
     # Calculate sums and averages
     sums = df[sum_columns].sum().round(2)
@@ -113,7 +132,7 @@ if df1 is not None:
         fig_cop = go.Figure()
         fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_total'], name='COP celkem', mode='lines'))
         fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_heating'], name='COP topení', mode='lines'))
-        fig_cop.add_trace(go.Scatter(x=df['date'], y=df['cop_water'], name='COP voda', mode='lines'))
+        
         fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP')
         st.plotly_chart(fig_cop, use_container_width=True)
 
@@ -163,7 +182,7 @@ if df1 is not None:
 
     # Energy efficiency calculation
     energy_efficiency = (sums['generated_total_kwh'] / sums['consumed_total_kwh']) * 100 if sums['consumed_total_kwh'] > 0 else 0
-    st.write(f"### Energetická účinnost: {energy_efficiency:.2f}%")
+    st.write(f"### Energetická účinnost: {energy_efficiency:.2f}% = {sums['generated_total_kwh']:.2f} / {sums['consumed_total_kwh']:.2f}")
 
     # Convert the updated dataframe to CSV
     csv_buffer = StringIO()
@@ -179,3 +198,7 @@ if df1 is not None:
     )
 else:
     st.write("Prosím nahrajte alespoň jeden CSV soubor.")
+
+if df.empty:
+    st.warning("Dataframe je prázdný po zpracování.")
+    st.stop()
