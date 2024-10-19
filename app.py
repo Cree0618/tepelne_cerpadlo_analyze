@@ -109,7 +109,8 @@ if df1 is not None:
         x=df['date'], 
         y=df['outside_temp_degC'], 
         name='Venkovní teplota',
-        yaxis='y'
+        yaxis='y',
+        line=dict(color='blue')
     ))
 
     # Add inside temperature trace with a secondary y-axis
@@ -117,7 +118,8 @@ if df1 is not None:
         x=df['date'], 
         y=df['inside_temp_degC'], 
         name='Vnitřní teplota',
-        yaxis='y2'
+        yaxis='y2',
+        line=dict(color='red')
     ))
 
     # Update layout with a secondary y-axis
@@ -130,6 +132,7 @@ if df1 is not None:
             overlaying='y',
             side='right',
             range=[df['inside_temp_degC'].min() - 1, df['inside_temp_degC'].max() + 1]
+            
         ),
         legend=dict(x=1.1, y=1)
     )
