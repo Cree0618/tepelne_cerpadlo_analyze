@@ -206,24 +206,12 @@ if df1 is not None:
                     overlaying='y',
                     side='right',
                     anchor='free',
-                    position=1.0
+                    position=1.5
                 ),
                 legend=dict(x=1.1, y=1)
             )
 
-            # Add a rectangle to indicate the zoomed-in area for inside temperature
-            fig_temp_energy.add_shape(
-                type="rect",
-                xref="paper", yref="y",
-                x0=0, y0=inside_temp_range[0],
-                x1=1, y1=inside_temp_range[1],
-                fillcolor="LightSalmon",
-                opacity=0.2,
-                layer="below",
-                line_width=0,
-            )
-
-            st.plotly_chart(fig_temp_energy, use_container_width=True)
+        
 
             # Key Performance Indicators (KPIs)
             st.write("### Klíčové ukazatele výkonu (KPI)")
