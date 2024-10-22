@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 from io import StringIO
 import numpy as np
 from datetime import datetime, timedelta
+import plotly.express as px
 
 # Set page config
 st.set_page_config(page_title="Analýza dat tepelného čerpadla", layout="wide")
@@ -253,7 +254,7 @@ if df1 is not None:
             )
 
             # After the existing graphs, add this new graph
-            st.write("### Vztah mezi vnitřní teplotou, venkovní teplotou a spotřebou energie")
+            #st.write("### Vztah mezi vnitřní teplotou, venkovní teplotou a spotřebou energie")
 
             fig_temp_energy_scatter = go.Figure()
 
@@ -286,6 +287,49 @@ if df1 is not None:
             )
 
             st.plotly_chart(fig_temp_energy_scatter, use_container_width=True)
+
+            # After the scatter plot, add this new heatmap
+            st.write("### Heatmapa spotřeby energie v závislosti na vnitřní a venkovní teplotě")
+
+            # Create bins for inside and outside temperatures
+            df['inside_temp_bin'] = pd.cut(df['inside_temp_degC'], bins=20)
+            df['outside_temp_bin'] = pd.cut(df['outside_temp_degC'], bins=20)
+
+            # Group by temperature bins and calculate mean energy consumption
+            heatmap_data = df.groupby(['inside_temp_bin', 'outside_temp_bin'])['consumed_total_kwh'].mean().reset_index()
+
+            # Create the heatmap
+            fig_heatmap = px.density_heatmap(
+                heatmap_data, 
+                x='inside_temp_bin', 
+                y='outside_temp_bin', 
+                z='consumed_total_kwh',
+                labels={'inside_temp_bin': 'Vnitřní teplota (°C)', 
+                        'outside_temp_bin': 'Venkovní teplota (°C)', 
+                        'consumed_total_kwh': 'Průměrná spotřeba energie (kWh)'},
+                title='Heatmapa průměrné spotřeby energie v závislosti na vnitřní a venkovní teplotě'
+            )
+
+            # Update layout for better readability
+            fig_heatmap.update_layout(
+                xaxis={'tickangle': 45},
+                yaxis={'tickangle': 0},
+                height=600,
+            )
+
+            st.plotly_chart(fig_heatmap, use_container_width=True)
+
+            # Add explanation
+            st.write("""
+            Tato heatmapa zobrazuje průměrnou spotřebu energie v závislosti na vnitřní a venkovní teplotě.
+            - Barva každé buňky představuje průměrnou spotřebu energie pro danou kombinaci vnitřní a venkovní teploty.
+            - Tmavší barvy indikují vyšší spotřebu energie, světlejší barvy nižší spotřebu.
+
+            Hledejte vzory jako:
+            - Při jakých kombinacích teplot je spotřeba energie nejvyšší?
+            - Jak se mění spotřeba energie s rostoucím rozdílem mezi vnitřní a venkovní teplotou?
+            - Existují nějaké neočekávané oblasti s vysokou nebo nízkou spotřebou energie?
+            """)
     else:
         st.warning("Prosím vyberte platný rozsah dat.")
 else:
