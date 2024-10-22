@@ -188,7 +188,7 @@ if df1 is not None:
                     tickfont=dict(color='red'),
                     overlaying='y',
                     side='right',
-                    range=inside_temp_range
+                    
                 ),
                 yaxis3=dict(
                     title='Spotřebovaná energie (kWh)',
