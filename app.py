@@ -197,7 +197,7 @@ if df1 is not None:
                     overlaying='y',
                     side='right',
                     anchor='free',
-                    position=1.05
+                    position=1.0
                 ),
                 legend=dict(x=1.1, y=1)
             )
