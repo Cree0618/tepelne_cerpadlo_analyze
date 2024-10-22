@@ -146,41 +146,52 @@ if df1 is not None:
                 x=df['date'], 
                 y=df['outside_temp_degC'], 
                 name='Venkovní teplota',
-                line=dict(color='blue')
+                line=dict(color='orange')
             ))
 
-            # Add inside temperature trace
+            # Add inside temperature trace with a secondary y-axis
             fig_temp_energy.add_trace(go.Scatter(
                 x=df['date'], 
                 y=df['inside_temp_degC'], 
                 name='Vnitřní teplota',
-                line=dict(color='red')
-            ))
-
-            # Add energy consumption trace with a secondary y-axis
-            fig_temp_energy.add_trace(go.Scatter(
-                x=df['date'], 
-                y=df['consumed_total_kwh'], 
-                name='Spotřebovaná energie',
                 yaxis='y2',
                 line=dict(color='green')
             ))
 
-            # Update layout with a secondary y-axis
+            # Add energy consumption trace with a third y-axis
+            fig_temp_energy.add_trace(go.Scatter(
+                x=df['date'], 
+                y=df['consumed_total_kwh'], 
+                name='Spotřebovaná energie',
+                yaxis='y3',
+                line=dict(color='blue')
+            ))
+
+            # Update layout with secondary and tertiary y-axes
             fig_temp_energy.update_layout(
                 title='Vnitřní a Venkovní teplota vs. Spotřebovaná energie v čase',
                 xaxis_title='Datum',
                 yaxis=dict(
-                    title='Teplota (°C)',
-                    titlefont=dict(color='black'),
-                    tickfont=dict(color='black')
+                    title='Venkovní teplota (°C)',
+                    titlefont=dict(color='orange'),
+                    tickfont=dict(color='orange')
                 ),
                 yaxis2=dict(
-                    title='Spotřebovaná energie (kWh)',
+                    title='Vnitřní teplota (°C)',
                     titlefont=dict(color='green'),
                     tickfont=dict(color='green'),
                     overlaying='y',
-                    side='right'
+                    side='right',
+                    range=[df['inside_temp_degC'].min() - 4, df['inside_temp_degC'].max() + 1]
+                ),
+                yaxis3=dict(
+                    title='Spotřebovaná energie (kWh)',
+                    titlefont=dict(color='blue'),
+                    tickfont=dict(color='blue'),
+                    overlaying='y',
+                    side='right',
+                    anchor='free',
+                    position=1.05
                 ),
                 legend=dict(x=1.1, y=1)
             )
