@@ -141,12 +141,17 @@ if df1 is not None:
             # Line chart for temperature data and energy consumption
             fig_temp_energy = go.Figure()
 
+            # Calculate the range for inside temperature
+            inside_temp_min = df['inside_temp_degC'].min()
+            inside_temp_max = df['inside_temp_degC'].max()
+            inside_temp_range = [inside_temp_min - 0.5, inside_temp_max + 0.5]
+
             # Add outside temperature trace
             fig_temp_energy.add_trace(go.Scatter(
                 x=df['date'], 
                 y=df['outside_temp_degC'], 
                 name='Venkovní teplota',
-                line=dict(color='orange')
+                line=dict(color='blue')
             ))
 
             # Add inside temperature trace with a secondary y-axis
@@ -155,7 +160,7 @@ if df1 is not None:
                 y=df['inside_temp_degC'], 
                 name='Vnitřní teplota',
                 yaxis='y2',
-                line=dict(color='green')
+                line=dict(color='red')
             ))
 
             # Add energy consumption trace with a third y-axis
@@ -164,7 +169,7 @@ if df1 is not None:
                 y=df['consumed_total_kwh'], 
                 name='Spotřebovaná energie',
                 yaxis='y3',
-                line=dict(color='blue')
+                line=dict(color='green')
             ))
 
             # Update layout with secondary and tertiary y-axes
@@ -173,27 +178,39 @@ if df1 is not None:
                 xaxis_title='Datum',
                 yaxis=dict(
                     title='Venkovní teplota (°C)',
-                    titlefont=dict(color='orange'),
-                    tickfont=dict(color='orange')
+                    titlefont=dict(color='blue'),
+                    tickfont=dict(color='blue')
                 ),
                 yaxis2=dict(
                     title='Vnitřní teplota (°C)',
-                    titlefont=dict(color='green'),
-                    tickfont=dict(color='green'),
+                    titlefont=dict(color='red'),
+                    tickfont=dict(color='red'),
                     overlaying='y',
                     side='right',
-                    range=y2_range
+                    range=inside_temp_range
                 ),
                 yaxis3=dict(
                     title='Spotřebovaná energie (kWh)',
-                    titlefont=dict(color='blue'),
-                    tickfont=dict(color='blue'),
+                    titlefont=dict(color='green'),
+                    tickfont=dict(color='green'),
                     overlaying='y',
                     side='right',
                     anchor='free',
                     position=1.05
                 ),
                 legend=dict(x=1.1, y=1)
+            )
+
+            # Add a rectangle to indicate the zoomed-in area for inside temperature
+            fig_temp_energy.add_shape(
+                type="rect",
+                xref="paper", yref="y",
+                x0=0, y0=inside_temp_range[0],
+                x1=1, y1=inside_temp_range[1],
+                fillcolor="LightSalmon",
+                opacity=0.2,
+                layer="below",
+                line_width=0,
             )
 
             st.plotly_chart(fig_temp_energy, use_container_width=True)
@@ -226,7 +243,3 @@ if df1 is not None:
         st.warning("Prosím vyberte platný rozsah dat.")
 else:
     st.write("Prosím nahrajte alespoň jeden CSV soubor.")
-
-min_temp = float(df['inside_temp_degC'].min()) if len(df) > 0 else 0
-max_temp = float(df['inside_temp_degC'].max()) if len(df) > 0 else 1
-y2_range = [min_temp - 4, max_temp + 1]
