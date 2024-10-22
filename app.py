@@ -182,7 +182,7 @@ if df1 is not None:
                     tickfont=dict(color='green'),
                     overlaying='y',
                     side='right',
-                    range=[df['inside_temp_degC'].min() - 4, df['inside_temp_degC'].max() + 1]
+                    range=y2_range
                 ),
                 yaxis3=dict(
                     title='Spotřebovaná energie (kWh)',
@@ -226,3 +226,7 @@ if df1 is not None:
         st.warning("Prosím vyberte platný rozsah dat.")
 else:
     st.write("Prosím nahrajte alespoň jeden CSV soubor.")
+
+min_temp = float(df['inside_temp_degC'].min()) if len(df) > 0 else 0
+max_temp = float(df['inside_temp_degC'].max()) if len(df) > 0 else 1
+y2_range = [min_temp - 4, max_temp + 1]
