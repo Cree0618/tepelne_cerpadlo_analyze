@@ -298,9 +298,9 @@ if df1 is not None:
             # Group by temperature bins and calculate mean energy consumption
             heatmap_data = df.groupby([inside_temp_bins, outside_temp_bins])['consumed_total_kwh'].mean().reset_index()
 
-            # Convert bin edges to strings to ensure JSON serializability
-            heatmap_data['inside_temp_bin'] = heatmap_data['inside_temp_degC'].astype(str)
-            heatmap_data['outside_temp_bin'] = heatmap_data['outside_temp_degC'].astype(str)
+            # Convert Interval objects to string representations
+            heatmap_data['inside_temp_bin'] = heatmap_data['inside_temp_degC'].apply(lambda x: f"{x.left:.1f} to {x.right:.1f}")
+            heatmap_data['outside_temp_bin'] = heatmap_data['outside_temp_degC'].apply(lambda x: f"{x.left:.1f} to {x.right:.1f}")
 
             # Create the heatmap
             fig_heatmap = px.density_heatmap(
@@ -321,13 +321,7 @@ if df1 is not None:
                 height=600,
             )
 
-            # Use try-except to catch and report any errors
-            try:
-                st.plotly_chart(fig_heatmap, use_container_width=True)
-            except Exception as e:
-                st.error(f"Error creating heatmap: {str(e)}")
-                st.write("Heatmap data:")
-                st.write(heatmap_data)
+            st.plotly_chart(fig_heatmap, use_container_width=True)
 
             # Add explanation
             st.write("""
@@ -344,3 +338,4 @@ if df1 is not None:
         st.warning("Prosím vyberte platný rozsah dat.")
 else:
     st.write("Prosím nahrajte alespoň jeden CSV soubor.")
+
