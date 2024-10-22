@@ -206,7 +206,7 @@ if df1 is not None:
                     overlaying='y',
                     side='right',
                     anchor='free',
-                    position=2.0
+                    
                 ),
                 legend=dict(x=1.1, y=1)
             )
