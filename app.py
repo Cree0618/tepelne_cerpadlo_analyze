@@ -138,41 +138,54 @@ if df1 is not None:
                 fig_cop.update_layout(title='COP hodnoty', xaxis_title='Datum', yaxis_title='COP')
                 st.plotly_chart(fig_cop, use_container_width=True)
 
-            # Line chart for temperature data
-            fig_temp = go.Figure()
+            # Line chart for temperature data and energy consumption
+            fig_temp_energy = go.Figure()
 
             # Add outside temperature trace
-            fig_temp.add_trace(go.Scatter(
+            fig_temp_energy.add_trace(go.Scatter(
                 x=df['date'], 
                 y=df['outside_temp_degC'], 
                 name='Venkovní teplota',
-                yaxis='y',
                 line=dict(color='blue')
             ))
 
-            # Add inside temperature trace with a secondary y-axis
-            fig_temp.add_trace(go.Scatter(
+            # Add inside temperature trace
+            fig_temp_energy.add_trace(go.Scatter(
                 x=df['date'], 
                 y=df['inside_temp_degC'], 
                 name='Vnitřní teplota',
-                yaxis='y2',
                 line=dict(color='red')
             ))
 
+            # Add energy consumption trace with a secondary y-axis
+            fig_temp_energy.add_trace(go.Scatter(
+                x=df['date'], 
+                y=df['consumed_total_kwh'], 
+                name='Spotřebovaná energie',
+                yaxis='y2',
+                line=dict(color='green')
+            ))
+
             # Update layout with a secondary y-axis
-            fig_temp.update_layout(
-                title='Vnitřní a Venkovní teplota v čase',
+            fig_temp_energy.update_layout(
+                title='Vnitřní a Venkovní teplota vs. Spotřebovaná energie v čase',
                 xaxis_title='Datum',
-                yaxis_title='Venkovní teplota (°C)',
+                yaxis=dict(
+                    title='Teplota (°C)',
+                    titlefont=dict(color='black'),
+                    tickfont=dict(color='black')
+                ),
                 yaxis2=dict(
-                    title='Vnitřní teplota (°C)',
+                    title='Spotřebovaná energie (kWh)',
+                    titlefont=dict(color='green'),
+                    tickfont=dict(color='green'),
                     overlaying='y',
-                    side='right',
-                    range=[df['inside_temp_degC'].min() - 4, df['inside_temp_degC'].max() + 1]
+                    side='right'
                 ),
                 legend=dict(x=1.1, y=1)
             )
-            st.plotly_chart(fig_temp, use_container_width=True)
+
+            st.plotly_chart(fig_temp_energy, use_container_width=True)
 
             # Key Performance Indicators (KPIs)
             st.write("### Klíčové ukazatele výkonu (KPI)")
