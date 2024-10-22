@@ -142,7 +142,7 @@ if df1 is not None:
             fig_temp_energy = go.Figure()
 
             # Calculate the range for inside temperature
-           if df['inside_temp_degC'].empty:
+            if df['inside_temp_degC'].empty:
                 inside_temp_min, inside_temp_max = 0.0, 1.0  # Default values if no data
             else:
                 inside_temp_min = float(df['inside_temp_degC'].min())
