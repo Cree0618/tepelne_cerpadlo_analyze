@@ -144,6 +144,9 @@ if df1 is not None:
             # Calculate the range for inside temperature
             inside_temp_min = df['inside_temp_degC'].min()
             inside_temp_max = df['inside_temp_degC'].max()
+            
+            # Set the y-axis range for inside temperature, extending 0.5°C below the minimum and 0.5°C above the maximum
+            # This provides a small buffer around the data points for better visualization
             inside_temp_range = [inside_temp_min - 0.5, inside_temp_max + 0.5]
 
             # Add outside temperature trace
@@ -187,7 +190,7 @@ if df1 is not None:
                     tickfont=dict(color='red'),
                     overlaying='y',
                     side='right',
-                    range=inside_temp_range
+                    
                 ),
                 yaxis3=dict(
                     title='Spotřebovaná energie (kWh)',
