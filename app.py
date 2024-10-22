@@ -292,11 +292,15 @@ if df1 is not None:
             st.write("### Heatmapa spotřeby energie v závislosti na vnitřní a venkovní teplotě")
 
             # Create bins for inside and outside temperatures
-            df['inside_temp_bin'] = pd.cut(df['inside_temp_degC'], bins=20)
-            df['outside_temp_bin'] = pd.cut(df['outside_temp_degC'], bins=20)
+            inside_temp_bins = pd.cut(df['inside_temp_degC'], bins=20)
+            outside_temp_bins = pd.cut(df['outside_temp_degC'], bins=20)
 
             # Group by temperature bins and calculate mean energy consumption
-            heatmap_data = df.groupby(['inside_temp_bin', 'outside_temp_bin'])['consumed_total_kwh'].mean().reset_index()
+            heatmap_data = df.groupby([inside_temp_bins, outside_temp_bins])['consumed_total_kwh'].mean().reset_index()
+
+            # Convert bin edges to strings to ensure JSON serializability
+            heatmap_data['inside_temp_bin'] = heatmap_data['inside_temp_degC'].astype(str)
+            heatmap_data['outside_temp_bin'] = heatmap_data['outside_temp_degC'].astype(str)
 
             # Create the heatmap
             fig_heatmap = px.density_heatmap(
@@ -317,7 +321,13 @@ if df1 is not None:
                 height=600,
             )
 
-            st.plotly_chart(fig_heatmap, use_container_width=True)
+            # Use try-except to catch and report any errors
+            try:
+                st.plotly_chart(fig_heatmap, use_container_width=True)
+            except Exception as e:
+                st.error(f"Error creating heatmap: {str(e)}")
+                st.write("Heatmap data:")
+                st.write(heatmap_data)
 
             # Add explanation
             st.write("""
