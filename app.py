@@ -192,12 +192,12 @@ if df1 is not None:
                     tickfont=dict(color='blue')
                 ),
                 yaxis2=dict(
-                    title='Vnitřní teplota (°C)',
+                    title=None,  # Remove the title
                     titlefont=dict(color='red'),
                     tickfont=dict(color='red'),
                     overlaying='y',
-                    side='right',
-                    
+                    side='left',
+                    showticklabels=False  # Hide tick labels
                 ),
                 yaxis3=dict(
                     title='Spotřebovaná energie (kWh)',
@@ -206,12 +206,26 @@ if df1 is not None:
                     overlaying='y',
                     side='right',
                     anchor='free',
-                    
+                    position=1.0
                 ),
                 legend=dict(x=1.1, y=1)
             )
 
-        
+            # Add an annotation for the inside temperature axis
+            fig_temp_energy.add_annotation(
+                x=0.01,
+                y=0.5,
+                xref='paper',
+                yref='paper',
+                text='Vnitřní teplota (°C)',
+                textangle=-90,
+                showarrow=False,
+                font=dict(color='red'),
+                xanchor='right',
+                yanchor='middle'
+            )
+
+            st.plotly_chart(fig_temp_energy, use_container_width=True)
 
             # Key Performance Indicators (KPIs)
             st.write("### Klíčové ukazatele výkonu (KPI)")
