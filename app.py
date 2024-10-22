@@ -251,6 +251,41 @@ if df1 is not None:
                 file_name="aktualizovana_data.csv",
                 mime="text/csv"
             )
+
+            # After the existing graphs, add this new graph
+            st.write("### Vztah mezi vnitřní teplotou, venkovní teplotou a spotřebou energie")
+
+            fig_temp_energy_scatter = go.Figure()
+
+            fig_temp_energy_scatter.add_trace(go.Scatter(
+                x=df['inside_temp_degC'],
+                y=df['outside_temp_degC'],
+                mode='markers',
+                marker=dict(
+                    size=df['consumed_total_kwh'],
+                    sizemode='area',
+                    sizeref=2.*max(df['consumed_total_kwh'])/(40.**2),
+                    sizemin=4,
+                    color=df['consumed_total_kwh'],
+                    colorscale='Viridis',
+                    showscale=True,
+                    colorbar=dict(title='Spotřebovaná energie (kWh)')
+                ),
+                text=df['date'].dt.strftime('%Y-%m-%d %H:%M:%S'),
+                hovertemplate='<b>Datum:</b> %{text}<br>' +
+                              '<b>Vnitřní teplota:</b> %{x:.1f}°C<br>' +
+                              '<b>Venkovní teplota:</b> %{y:.1f}°C<br>' +
+                              '<b>Spotřebovaná energie:</b> %{marker.size:.2f} kWh<br>',
+            ))
+
+            fig_temp_energy_scatter.update_layout(
+                title='Vztah mezi vnitřní teplotou, venkovní teplotou a spotřebou energie',
+                xaxis_title='Vnitřní teplota (°C)',
+                yaxis_title='Venkovní teplota (°C)',
+                height=600,
+            )
+
+            st.plotly_chart(fig_temp_energy_scatter, use_container_width=True)
     else:
         st.warning("Prosím vyberte platný rozsah dat.")
 else:
