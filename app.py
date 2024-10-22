@@ -142,19 +142,10 @@ if df1 is not None:
             fig_temp_energy = go.Figure()
 
             # Calculate the range for inside temperature
-            if df['inside_temp_degC'].empty:
-                inside_temp_min, inside_temp_max = 0.0, 1.0  # Default values if no data
-            else:
-                inside_temp_min = float(df['inside_temp_degC'].min())
-                inside_temp_max = float(df['inside_temp_degC'].max())
-
-            # Ensure we have a valid range
-            if inside_temp_min == inside_temp_max:
-                inside_temp_min -= 0.5
-                inside_temp_max += 0.5
+           
 
             # Set the y-axis range for inside temperature, extending 0.5°C below the minimum and 0.5°C above the maximum
-            inside_temp_range = [inside_temp_min - 0.5, inside_temp_max + 0.5]
+            #inside_temp_range = [inside_temp_min - 0.5, inside_temp_max + 0.5]
 
             # Add outside temperature trace
             fig_temp_energy.add_trace(go.Scatter(
